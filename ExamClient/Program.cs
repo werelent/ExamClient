@@ -1,0 +1,45 @@
+using ExamClient.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+var dbDemoConnectionString = builder.Configuration.GetConnectionString("DB_API_Connection");
+builder.Services.AddDbContext<DB_API_Context>(options =>
+    options.UseSqlServer(dbDemoConnectionString));
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v2", new OpenApiInfo { Title = "ExamClient", Version = "v2" });
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v2/swagger.json", "ExamClient");
+    });
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
